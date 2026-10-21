@@ -1,0 +1,44 @@
+# Sistema operativo
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Editores e IDEs
+.vscode/
+.idea/
+*.sublime-workspace
+*.swp
+*.swo
+
+# Archivos temporales y logs
+*.log
+*.tmp
+*.temp
+*.bak
+
+# Variables de entorno y secretos locales
+.env
+.env.*
+!.env.example
+
+# Dependencias
+node_modules/
+vendor/
+
+# Salidas de compilación y cobertura
+build/
+dist/
+out/
+coverage/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+pip-wheel-metadata/
+
+# Archivos de paquetes
+*.zip
+*.tar
+*.gz
