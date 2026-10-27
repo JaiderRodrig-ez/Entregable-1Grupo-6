@@ -30,16 +30,14 @@ router.post('/', /*uploadUser.single('avatar') ,*/ async(req, res) => {
         }
 
         const users = await leerUsers();
-        const id = users.length ? Math.max(...users.map(u => u.id)) + 1 : 1;
 
         //const passwordHash = hashPassword(password);
         const newUser = new User(
-        id,
-        firstname,
-        lastname,
-        username,
-        password, 
-        req.file ? `/img/users/${req.file.filename}` : null
+            firstname,
+            lastname,
+            username,
+            password, 
+            req.file ? `/img/users/${req.file.filename}` : null
         );
 
         users.push(newUser);
