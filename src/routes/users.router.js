@@ -1,5 +1,4 @@
 import { Router } from 'express';
-import { error } from 'node:console';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 //import { uploadUser } from '../middlewares/multer.middleware.js';
@@ -24,27 +23,27 @@ const escUsers = (users) => fs.writeFile(usersFile, JSON.stringify(users, null, 
 
 router.post('/', /*uploadUser.single('avatar') ,*/ async(req, res) => {
     try {
-        const { firstname, lastname, username, password } = req.body ?? {};
-        if (!firstname || !lastname || !username || !password) {
+        const { nombre, apellidos, usuario, contrasenha } = req.body ?? {};
+        if (!nombre || !apellidos || !usuario || !contrasenha) {
         if (req.file) await fs.unlink(req.file.path);
         return res.status(400).json({ error: 'Campos requeridos no enviados' });
         }
 
         const users = await leerUsers();
 
-        //const passwordHash = hashPassword(password);
+        //const passwordHash = hashPassword(contrasenha);
         const newUser = new User(
-            firstname,
-            lastname,
-            username,
-            password, 
+            nombre,
+            apellidos,
+            usuario,
+            contrasenha, /* passwordHash*/
             req.file ? `/img/users/${req.file.filename}` : null
         );
 
         users.push(newUser);
         await escUsers(users);
 
-        const { password: _, ...userSinPassword } = newUser;
+        const { contrasenha: _, ...userSinPassword } = newUser;
         res.status(201).json(userSinPassword);
     } catch (error) {
         res.status(500).json({ error: 'Error interno del servidor' });
@@ -54,7 +53,7 @@ router.post('/', /*uploadUser.single('avatar') ,*/ async(req, res) => {
 router.get('/', async (req, res) => {
     try {
         const users = await leerUsers();
-        const usersSinPassword = users.map(({ password, ...rest }) => rest);
+        const usersSinPassword = users.map(({ contrasenha : _, ...rest }) => rest);
         res.status(200).json(usersSinPassword);
     } catch(error) {
         res.status(500).json({error : 'Error interno del servidor'});
@@ -71,7 +70,7 @@ router.get('/:id', async (req, res) => {
             return res.status(404).json({error : 'Usuario no encontrado'});
         }
 
-        const {password, ...userSinPass} = user;
+        const {contrasenha : _, ...userSinPass} = user;
         res.status(200).json(userSinPass);
 
     } catch(error) {
@@ -90,7 +89,7 @@ router.delete('/:id', async (req, res) => {
         const newUsers = users.filter(u => u.id !== id);
 
         if (newUsers.length === users.length) {
-            res.status(404).json({error : 'Usuario no encontrado'});
+            return res.status(404).json({error : 'Usuario no encontrado'});
         }
 
 
@@ -102,8 +101,44 @@ router.delete('/:id', async (req, res) => {
     }
 });
 
-router.get('/', (req, res) => {
-  res.send('test');
+router.put('/:id', /* uploadUser.single('avatar'), */ async(req, res) => {
+    try {
+
+        const { id } = req.params;
+        const { nombre, apellidos, usuario,  contrasenha} = req.body ?? {};
+        const users = await leerUsers();
+        const user = users.find(u => u.id === id);
+
+        if (!user) {
+            if(req.file) await fs.unlink(req.file.path);
+            return res.status(400).json({error : 'Usuario no encontrado'});
+        }
+        
+        if (!nombre && !apellidos && !usuario && !contrasenha){
+            return res.status(400).json({error : 'No se enviaron datos para actualizar'});
+        }
+        
+        if (nombre) user.nombre = nombre;
+        if (apellidos) user.apellidos = apellidos;
+        if (usuario) user.usuario = usuario;
+        if (contrasenha){
+            //const hashContrasenha = hashPassword(contrasenha);
+            user.contrasenha = contrasenha;
+            //user.contrasenha = hashContrasenha;
+        }
+        if (req.file) {
+            if (user.avatar) {
+                const oldPath = path.join(import.meta.dirname, '../../public', user.avatar);
+                await fs.unlink(oldPath).catch(() => {});
+            }
+            user.avatar = `/img/users/${req.file.filename}`;
+        }
+        await escUsers(users);
+        const {contrasenha : _, ...userSinPass} = user;
+        return res.status(200).json(userSinPass);
+    } catch(error){
+        res.status(500).json({error : 'Error interno del servidor'});
+    }
 });
 
 export default router;
