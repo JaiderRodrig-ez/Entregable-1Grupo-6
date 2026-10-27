@@ -82,14 +82,14 @@ router.get('/:id', async (req, res) => {
 
 router.delete('/:id', async (req, res) => {
     try {
-        
+
         const { id } = req.params;
         
         const users = await leerUsers();
     
         const newUsers = users.filter(u => u.id !== id);
 
-        if (newUsers.length == users.length) {
+        if (newUsers.length === users.length) {
             res.status(404).json({error : 'Usuario no encontrado'});
         }
 
