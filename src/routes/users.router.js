@@ -4,7 +4,6 @@ import path from 'node:path';
 //import { uploadUser } from '../middlewares/multer.middleware.js';
 //import { hashPassword } from '../utils/crypto.js';
 
-
 class User{
     constructor(nombre, apellidos, usuario, contrasenha, avatar){
         this.id = crypto.randomUUID();
@@ -17,6 +16,42 @@ class User{
 }
 
 const router = Router();
+const usersFile = path.join(import.meta.dirname, '../data/users.json');
+
+const leerUsers = async () => JSON.parse(await fs.readFile(usersFile, 'utf-8'));
+const escUsers = (users) => fs.writeFile(usersFile, JSON.stringify(users, null, 2));
+
+router.post('/', /*uploadUser.single('avatar') ,*/ async(req, res) => {
+    try {
+        const { firstname, lastname, username, password } = req.body ?? {};
+        if (!firstname || !lastname || !username || !password) {
+        if (req.file) await fs.unlink(req.file.path);
+        return res.status(400).json({ error: 'Campos requeridos no enviados' });
+        }
+
+        const users = await leerUsers();
+        const id = users.length ? Math.max(...users.map(u => u.id)) + 1 : 1;
+
+        //const passwordHash = hashPassword(password);
+        const newUser = new User(
+        id,
+        firstname,
+        lastname,
+        username,
+        password, 
+        req.file ? `/img/users/${req.file.filename}` : null
+        );
+
+        users.push(newUser);
+        await escUsers(users);
+
+        const { password: _, ...userSinPassword } = newUser;
+        res.status(201).json(userSinPassword);
+    } catch (error) {
+        res.status(500).json({ error: 'Error interno del servidor' });
+    }
+});
+
 
 router.get('/', (req, res) => {
   res.send('test');
