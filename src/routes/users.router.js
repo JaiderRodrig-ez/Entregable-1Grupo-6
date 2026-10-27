@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { error } from 'node:console';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 //import { uploadUser } from '../middlewares/multer.middleware.js';
@@ -61,7 +62,45 @@ router.get('/', async (req, res) => {
     }
 });
 
+router.get('/:id', async (req, res) => {
+    try {
+        const users = await leerUsers();
+        const user = users.find((u) => u.id === req.params.id);
 
+        if (!user) {
+            return res.status(404).json({error : 'Usuario no encontrado'});
+        }
+
+        const {password, ...userSinPass} = user;
+        res.status(200).json(userSinPass);
+
+    } catch(error) {
+        res.status(500).json({error : 'Error interno del servidor'});
+    }
+
+});
+
+router.delete('/:id', async (req, res) => {
+    try {
+        
+        const { id } = req.params;
+        
+        const users = await leerUsers();
+    
+        const newUsers = users.filter(u => u.id !== id);
+
+        if (newUsers.length == users.length) {
+            res.status(404).json({error : 'Usuario no encontrado'});
+        }
+
+
+        await escUsers(newUsers);
+        res.status(200).json({message : 'Usuario eliminado'});
+
+    } catch(error) {
+        res.status(500).json({ error: 'Error interno del servidor' });
+    }
+});
 
 router.get('/', (req, res) => {
   res.send('test');
