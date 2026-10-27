@@ -50,6 +50,18 @@ router.post('/', /*uploadUser.single('avatar') ,*/ async(req, res) => {
     }
 });
 
+router.get('/', async (req, res) => {
+    try {
+        const users = await leerUsers();
+        const usersSinPassword = users.map(({ password, ...rest }) => rest);
+        res.status(200).json(usersSinPassword);
+    } catch(error) {
+        res.status(500).json({error : 'Error interno del servidor'});
+
+    }
+});
+
+
 
 router.get('/', (req, res) => {
   res.send('test');
