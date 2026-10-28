@@ -1,1 +1,29 @@
-[]
+[
+  {
+    "id": "c3f1b4a0-8d21-4b76-92f1-5e8a71c93a01",
+    "especie": "perro",
+    "color": "marron",
+    "edad": 3,
+    "sexo": "macho",
+    "img": "https://ejemplo.com/imagenes/perro-marron.jpg",
+    "duehno": "Carlos Perez"
+  },
+  {
+    "id": "e9b2c7d4-1a35-4e89-b0f2-7d6a45e12f02",
+    "especie": "gato",
+    "color": "blanco",
+    "edad": 2,
+    "sexo": "hembra",
+    "img": "https://ejemplo.com/imagenes/gato-blanco.jpg",
+    "duehno": "Maria Gomez"
+  },
+  {
+    "id": "a4d8f1e2-5c67-4a12-8e34-9b0c78d45e03",
+    "especie": "ave",
+    "color": "verde",
+    "edad": 1,
+    "sexo": "hembra",
+    "img": "https://ejemplo.com/imagenes/loro-verde.jpg",
+    "duehno": "Andres Silva"
+  }
+]
