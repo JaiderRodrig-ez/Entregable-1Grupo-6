@@ -2,7 +2,7 @@ import { Router } from "express";
 import path from "path";
 import { randomUUID } from "crypto";
 import { fileURLToPath } from "url";
-import {promises as fs} from "fs";
+import { promises as fs } from "fs";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const routerMascota = Router();
@@ -19,10 +19,9 @@ class Mascota {
   }
 }
 
-routerMascota.get("/", (_, res) => {
+routerMascota.get("/", async (_, res) => {
   try {
-    const mascotasJson = path.join(__dirname, "..", "data", "pets.json");
-    res.sendFile(mascotasJson);
+    return res.json(await leerJson("pets.json"));
   } catch (e) {
     return res
       .status(500)
@@ -33,14 +32,12 @@ routerMascota.get("/", (_, res) => {
 routerMascota.get("/:id", async (req, res) => {
   try {
     const { id } = req.params;
-    const mascotasJson = path.join(__dirname, "..", "data", "pets.json");
-    const datos = await fs.readFile(mascotasJson, "utf-8");
-    const mascotas = JSON.parse(datos);
+    const mascotas = await leerJson("pets.json");
     const mascota = mascotas.find((p) => p.id === id);
     if (!mascota) {
       return res.status(404).json({ error: "Mascota no encontrada" });
     }
-    res.json(mascota);
+    return res.json(mascota);
   } catch (e) {
     return res
       .status(500)
@@ -48,4 +45,47 @@ routerMascota.get("/:id", async (req, res) => {
   }
 });
 
+routerMascota.post("/", async (req, res) => {
+  try {
+    const { especie, color, edad, sexo, img, duehno } = req.body;
+    if (
+      !especie ||
+      !color ||
+      !edad ||
+      !sexo ||
+      !Array.isArray(img) ||
+      img.length === 0 ||
+      !duehno
+    ) {
+      return res.status(400).json({ error: "Datos de la mascota incompletos" });
+    }
+    const duehnos = await leerJson("users.json");
+    if (!duehnos.some((d) => duehno === d.id)) {
+      return res.status(400).json({
+        error: "No existe el dueño para esa mascota, primero crear el dueño",
+      });
+    }
+    const mascotaNueva = new Mascota(especie, color, edad, sexo, img, duehno);
+    const mascotas = await leerJson("pets.json");
+    mascotas.push(mascotaNueva);
+
+    await escribirJson("pets.json", mascotas);
+    return res.status(201).json(mascotaNueva);
+  } catch (e) {
+    return res.status(500).json({ error: "Error al crear la mascota" });
+  }
+});
+
+async function leerJson(archivo) {
+  const ruta = await obtenerRuta(archivo);
+  const datos = await fs.readFile(ruta, "utf-8");
+  return JSON.parse(datos);
+}
+async function obtenerRuta(archivo) {
+  return path.join(__dirname, "..", "data", archivo);
+}
+async function escribirJson(archivo, datos) {
+  const ruta = await obtenerRuta(archivo);
+  await fs.writeFile(ruta, JSON.stringify(datos, null, 2), "utf-8");
+}
 export default routerMascota;
