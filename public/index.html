@@ -4,150 +4,114 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>API Lab · Usuarios y mascotas</title>
+  <title>Entregable 1 · Grupo 6</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
   <link rel="stylesheet" href="/tester.css">
 </head>
 
 <body>
-  <div class="shell">
-    <aside class="sidebar">
-      <div class="brand">
-        <div class="brandmark">{ }</div>
-        <div><b>API Lab</b><small>ENTREGABLE 01 · GRUPO 6</small></div>
+  <header class="top">
+    <div class="top-inner">
+      <div class="title">
+        <h1>Entregable 1</h1>
+        <span class="group">Grupo 6</span>
       </div>
-      <div class="side-label">EXPLORADOR</div><button class="nav active" data-page="overview"><span>▦</span> Panel
-        general</button><button class="nav" data-page="users"><span>♙</span> Usuarios <small>5
-          endpoints</small></button><button class="nav" data-page="pets"><span>♧</span> Mascotas <small>5
-          endpoints</small></button>
-      <div class="side-label space">HERRAMIENTAS</div><button class="nav" data-page="playground"><span>⌘</span> Petición
-        libre</button>
-      <div class="sidebar-foot">
-        <div class="dot"></div> API local <span id="api-health">Verificando…</span><small>Node.js · Express ·
-          Multer</small>
+      <p class="sub">API REST de usuarios y mascotas</p>
+      <div class="server"><span class="dot" id="api-dot"></span><span id="api-health">Comprobando servidor…</span></div>
+    </div>
+  </header>
+
+  <div class="layout">
+    <nav class="routes" aria-label="Endpoints">
+      <div class="route-group">
+        <h2>Usuarios <code>/api/users</code></h2>
+        <ul>
+          <li><button class="route" type="button" data-resource="users" data-op="list"><span class="method get">GET</span>Listar</button></li>
+          <li><button class="route" type="button" data-resource="users" data-op="one"><span class="method get">GET</span>Obtener<code>/:id</code></button></li>
+          <li><button class="route" type="button" data-resource="users" data-op="create"><span class="method post">POST</span>Crear</button></li>
+          <li><button class="route" type="button" data-resource="users" data-op="update"><span class="method put">PUT</span>Actualizar<code>/:id</code></button></li>
+          <li><button class="route" type="button" data-resource="users" data-op="delete"><span class="method delete">DELETE</span>Eliminar<code>/:id</code></button></li>
+        </ul>
       </div>
-    </aside>
-    <main class="main">
-      <header class="topbar">
-        <div class="crumb">ENTREGABLE 1 <span>/</span> <span id="breadcrumb">Panel general</span></div>
-        <div class="topright"><span class="kbd">localhost:3000</span><span class="avatar">G6</span></div>
-      </header>
-      <section id="overview" class="page active">
-        <div class="eyebrow">CENTRO DE PRUEBAS REST</div>
-        <h1>Tu API, en un solo lugar<span class="accent">.</span></h1>
-        <p class="lede">Consulta, crea, actualiza y elimina registros desde el navegador. Prueba también la subida de
-          imágenes con Multer, sin necesidad de Postman.</p>
-        <div class="stats">
-          <div class="stat"><span>RECURSOS DISPONIBLES</span><strong>02</strong><small>Usuarios y mascotas</small></div>
-          <div class="stat"><span>ENDPOINTS CRUD</span><strong>10</strong><small>GET · POST · PUT · DELETE</small></div>
-          <div class="stat"><span>ALMACENAMIENTO</span><strong>JSON</strong><small>Persistencia con fs.promises</small>
+      <div class="route-group">
+        <h2>Mascotas <code>/api/pets</code></h2>
+        <ul>
+          <li><button class="route" type="button" data-resource="pets" data-op="list"><span class="method get">GET</span>Listar</button></li>
+          <li><button class="route" type="button" data-resource="pets" data-op="one"><span class="method get">GET</span>Obtener<code>/:id</code></button></li>
+          <li><button class="route" type="button" data-resource="pets" data-op="create"><span class="method post">POST</span>Crear</button></li>
+          <li><button class="route" type="button" data-resource="pets" data-op="update"><span class="method put">PUT</span>Actualizar<code>/:id</code></button></li>
+          <li><button class="route" type="button" data-resource="pets" data-op="delete"><span class="method delete">DELETE</span>Eliminar<code>/:id</code></button></li>
+        </ul>
+      </div>
+      <div class="route-group">
+        <h2>Otra ruta</h2>
+        <ul>
+          <li><button class="route" type="button" id="route-manual"><span class="method">ANY</span>Petición manual</button></li>
+        </ul>
+      </div>
+    </nav>
+
+    <main class="work">
+      <section class="panel request" id="request" aria-label="Petición">
+        <div class="request-line"><span class="method get" id="req-method">GET</span><code id="req-path">/api/users</code></div>
+        <p class="request-note" id="req-note"></p>
+
+        <form id="request-form">
+          <div id="fields"></div>
+          <div class="actions">
+            <button class="btn primary" id="send-btn" type="submit">Enviar</button>
+            <button class="btn" type="reset">Limpiar</button>
           </div>
-        </div>
-        <div class="section-head">
-          <h2>Explorar recursos</h2>
-          <p>Selecciona un módulo para empezar</p>
-        </div>
-        <div class="feature-grid"><button class="feature" data-go="users">
-            <div class="feature-icon blue">♙</div><span class="pill">/api/users</span>
-            <h3>Gestión de usuarios</h3>
-            <p>Registrar, consultar, editar y eliminar usuarios; probar avatares y contraseñas.</p><b>Explorar endpoints
-              <span>→</span></b>
-          </button><button class="feature" data-go="pets">
-            <div class="feature-icon purple">♧</div><span class="pill">/api/pets</span>
-            <h3>Gestión de mascotas</h3>
-            <p>CRUD de mascotas, asociación con dueños y subida de hasta cinco imágenes.</p><b>Explorar endpoints
-              <span>→</span></b>
-          </button></div>
-        <div class="hint"><span>✦</span>
-          <div><b>¿Cómo probar?</b>
-            <p>Abre un módulo, selecciona una operación, completa los campos y pulsa <strong>Enviar petición</strong>. A
-              la derecha verás el código HTTP y la respuesta JSON real.</p>
+        </form>
+
+        <form id="manual-form" hidden>
+          <div class="manual-line">
+            <select id="manual-method" aria-label="Método">
+              <option>GET</option>
+              <option>POST</option>
+              <option>PUT</option>
+              <option>DELETE</option>
+            </select>
+            <input id="manual-path" value="/api/users" aria-label="Ruta" spellcheck="false">
           </div>
+          <div class="field">
+            <label for="manual-body"><code>body</code><span>JSON, opcional</span></label>
+            <textarea id="manual-body" rows="8" spellcheck="false" placeholder='{ "nombre": "Ana" }'></textarea>
+          </div>
+          <div class="actions">
+            <button class="btn primary" type="submit">Enviar</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="panel response" aria-label="Respuesta">
+        <div class="response-head">
+          <span id="res-status" class="status">Sin enviar</span>
+          <span id="res-meta"></span>
+          <button id="copy-response" class="link-btn" type="button" hidden>Copiar</button>
+        </div>
+        <pre id="response-json" class="placeholder">La respuesta del servidor aparece aquí.</pre>
+      </section>
+
+      <section class="panel data" aria-label="Datos guardados">
+        <div class="data-head">
+          <h2 id="data-title">Usuarios</h2>
+          <code id="data-file">src/data/users.json</code>
+          <span id="data-count"></span>
+          <button class="btn small" id="load-records" type="button">Recargar</button>
+        </div>
+        <div class="table-wrap">
+          <table id="records"></table>
         </div>
       </section>
-      <section id="resource" class="page">
-        <div class="eyebrow">EXPLORADOR DE ENDPOINTS</div>
-        <h1 id="resource-title">Usuarios</h1>
-        <p class="lede" id="resource-desc"></p>
-        <div class="resource-tabs"><button id="tab-users" class="active">♙ Usuarios</button><button id="tab-pets">♧
-            Mascotas</button></div>
-        <div class="operations" id="operations"></div>
-        <div class="work-grid">
-          <div class="panel">
-            <div class="panel-head">
-              <div><span class="panel-kicker">CONSTRUCTOR DE PETICIONES</span>
-                <h3 id="form-title">Nueva petición</h3>
-              </div><span class="method-pill" id="method-pill">GET</span>
-            </div>
-            <div class="panel-body">
-              <div class="endpoint-line"><span id="endpoint-method">GET</span><code id="endpoint-path">/api/users</code>
-              </div>
-              <form id="request-form">
-                <div id="fields"></div>
-                <div class="form-actions"><button class="btn btn-primary" id="send-btn" type="submit">▶ Enviar
-                    petición</button><button class="btn btn-secondary" type="reset">Limpiar</button></div>
-              </form>
-            </div>
-          </div>
-          <div class="panel response-panel">
-            <div class="panel-head">
-              <div><span class="panel-kicker">RESULTADO EN TIEMPO REAL</span>
-                <h3>Respuesta del servidor</h3>
-              </div><span id="response-status" class="status neutral">Sin ejecutar</span>
-            </div>
-            <div class="response-meta"><span id="duration">— ms</span><span id="response-url">Esperando petición…</span>
-            </div>
-            <pre id="response-json">{
-  "mensaje": "Selecciona una operación y envía una petición para ver los resultados."
-}</pre>
-            <div class="response-foot"><button id="copy-response" class="text-btn">⧉ Copiar JSON</button><button
-                id="refresh-list" class="text-btn">↻ Consultar lista</button></div>
-          </div>
-        </div>
-        <div class="section-head data-head">
-          <h2 id="records-title">Registros actuales</h2><button class="btn btn-secondary small" id="load-records">↻
-            Actualizar registros</button>
-        </div>
-        <div id="records" class="records">
-          <div class="empty">Selecciona un recurso para ver los registros.</div>
-        </div>
-      </section>
-      <section id="playground" class="page">
-        <div class="eyebrow">HERRAMIENTAS PARA DESARROLLADORES</div>
-        <h1>Petición libre<span class="accent">.</span></h1>
-        <p class="lede">Envía solicitudes HTTP personalizadas a tu API local.</p>
-        <div class="work-grid">
-          <div class="panel">
-            <div class="panel-head">
-              <div><span class="panel-kicker">HTTP REQUEST</span>
-                <h3>Configurar solicitud</h3>
-              </div>
-            </div>
-            <div class="panel-body">
-              <div class="inline-input"><select id="free-method">
-                  <option>GET</option>
-                  <option>POST</option>
-                  <option>PUT</option>
-                  <option>DELETE</option>
-                </select><input id="free-path" value="/api/users" aria-label="Ruta" /></div><label class="fieldlabel"
-                for="free-body">Cuerpo JSON (opcional)</label><textarea id="free-body" rows="11" spellcheck="false"
-                placeholder='{"nombre":"Ana"}'></textarea><button class="btn btn-primary" id="free-send">▶ Enviar
-                petición</button>
-              <p class="note">Usa los formularios de Usuarios o Mascotas para enviar archivos multipart/form-data.</p>
-            </div>
-          </div>
-          <div class="panel response-panel">
-            <div class="panel-head">
-              <div><span class="panel-kicker">RESPUESTA</span>
-                <h3>Resultado HTTP</h3>
-              </div><span id="free-status" class="status neutral">Sin ejecutar</span>
-            </div>
-            <pre id="free-response">Esperando solicitud…</pre>
-          </div>
-        </div>
-      </section>
-      <footer>API LAB <span>·</span> GRUPO 6 <span>·</span> PRUEBAS DE API REST</footer>
     </main>
   </div>
+
+  <datalist id="id-options"></datalist>
+  <datalist id="owner-options"></datalist>
   <div id="toast" role="status"></div>
   <script src="/tester.js" defer></script>
 </body>

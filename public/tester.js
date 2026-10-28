@@ -1,42 +1,71 @@
-
 const $ = (s) => document.querySelector(s);
 
 const state = {
-  resource: 'users',
+  resource: null,
   operation: 'list',
+  manual: false,
   lastResponse: '',
-  records: []
+  records: [],
+  users: []
 };
 
-const names = {
-  users: 'Usuarios',
-  pets: 'Mascotas'
+const resources = {
+  users: { name: 'Usuarios', file: 'src/data/users.json' },
+  pets: { name: 'Mascotas', file: 'src/data/pets.json' }
 };
 
 const operations = [
-  { id: 'list', method: 'GET', name: 'Listar todos' },
-  { id: 'one', method: 'GET', name: 'Buscar por ID' },
-  { id: 'create', method: 'POST', name: 'Crear registro' },
-  { id: 'update', method: 'PUT', name: 'Actualizar' },
-  { id: 'delete', method: 'DELETE', name: 'Eliminar' }
+  { id: 'list', method: 'GET' },
+  { id: 'one', method: 'GET' },
+  { id: 'create', method: 'POST' },
+  { id: 'update', method: 'PUT' },
+  { id: 'delete', method: 'DELETE' }
 ];
 
+const withId = ['one', 'update', 'delete'];
+
+const notes = {
+  users: {
+    list: 'Devuelve todos los usuarios sin el campo contrasenha.',
+    one: 'Devuelve un usuario. Responde 404 si el ID no existe.',
+    create: 'multipart/form-data. La contraseña se guarda cifrada con AES-256-CBC. Responde 201.',
+    update: 'Solo cambia los campos enviados. Un avatar nuevo reemplaza al anterior.',
+    delete: 'Elimina el usuario de users.json.'
+  },
+  pets: {
+    list: 'Devuelve todas las mascotas.',
+    one: 'Devuelve una mascota. Responde 404 si el ID no existe.',
+    create: 'multipart/form-data. duehno debe ser el ID de un usuario existente. Responde 201.',
+    update: 'Solo cambia los campos enviados. Las imágenes nuevas reemplazan a las anteriores.',
+    delete: 'Elimina la mascota de pets.json y borra sus imágenes del disco.'
+  }
+};
+
+// [campo, tipo, ejemplo]
 const schemas = {
   users: [
-    ['nombre', 'Nombre', 'text'],
-    ['apellidos', 'Apellidos', 'text'],
-    ['usuario', 'Usuario', 'text'],
-    ['contrasenha', 'Contraseña', 'password'],
-    ['avatar', 'Avatar (imagen)', 'file']
+    ['nombre', 'text', 'Ana'],
+    ['apellidos', 'text', 'Ruiz Torres'],
+    ['usuario', 'text', 'a.ruiz'],
+    ['contrasenha', 'password'],
+    ['avatar', 'file']
   ],
   pets: [
-    ['especie', 'Especie', 'text'],
-    ['color', 'Color', 'text'],
-    ['edad', 'Edad', 'number'],
-    ['sexo', 'Sexo', 'select'],
-    ['duehno', 'ID del dueño (usuario)', 'owner'],
-    ['img', 'Imágenes (máximo 5)', 'multi']
+    ['especie', 'text', 'perro'],
+    ['color', 'text', 'marrón'],
+    ['edad', 'number', '3'],
+    ['sexo', 'select'],
+    ['duehno', 'owner'],
+    ['img', 'multi']
   ]
+};
+
+const reasons = {
+  200: 'OK',
+  201: 'Created',
+  400: 'Bad Request',
+  404: 'Not Found',
+  500: 'Internal Server Error'
 };
 
 // ==========================================
@@ -53,156 +82,129 @@ function toast(msg) {
 
   window._toastTimer = setTimeout(() => {
     t.classList.remove('show');
-  }, 2800);
+  }, 2400);
+}
+
+function copy(text, msg) {
+  navigator.clipboard
+    .writeText(text)
+    .then(() => toast(msg))
+    .catch(() => toast('No se pudo copiar'));
 }
 
 // ==========================================
-// NAVEGACIÓN
+// SELECCIÓN DE ENDPOINT
 // ==========================================
 
-function navigate(page) {
-  document.querySelectorAll('.nav').forEach((n) => {
-    n.classList.toggle('active', n.dataset.page === page);
+function markRoute() {
+  document.querySelectorAll('.route').forEach((b) => {
+    const active = state.manual
+      ? b.id === 'route-manual'
+      : b.dataset.resource === state.resource &&
+        b.dataset.op === state.operation;
+
+    b.classList.toggle('active', active);
+    b.setAttribute('aria-current', active ? 'true' : 'false');
   });
+}
 
-  document.querySelectorAll('.page').forEach((n) => {
-    n.classList.toggle(
-      'active',
-      n.id === (
-        page === 'overview'
-          ? 'overview'
-          : page === 'playground'
-            ? 'playground'
-            : 'resource'
-      )
-    );
-  });
+function setMethod(method) {
+  const el = $('#req-method');
 
-  $('#breadcrumb').textContent =
-    page === 'overview'
-      ? 'Panel general'
-      : page === 'playground'
-        ? 'Petición libre'
-        : names[page];
+  el.textContent = method;
+  el.className = 'method ' + method.toLowerCase();
+}
 
-  if (page === 'users' || page === 'pets') {
-    setResource(page);
+function updatePath() {
+  if (state.manual) {
+    $('#req-path').textContent = $('#manual-path').value.trim() || '/';
+    return;
   }
+
+  const id = $('#f-id')?.value.trim();
+
+  $('#req-path').textContent =
+    `/api/${state.resource}` +
+    (withId.includes(state.operation) ? '/' + (id || ':id') : '');
 }
 
-// ==========================================
-// RECURSOS: USUARIOS Y MASCOTAS
-// ==========================================
+function select(resource, opId) {
+  const resourceChanged = resource !== state.resource;
 
-function setResource(resource) {
   state.resource = resource;
+  state.operation = opId;
+  state.manual = false;
 
-  $('#tab-users').classList.toggle(
-    'active',
-    resource === 'users'
-  );
+  markRoute();
 
-  $('#tab-pets').classList.toggle(
-    'active',
-    resource === 'pets'
-  );
+  $('#request-form').hidden = false;
+  $('#manual-form').hidden = true;
 
-  $('#resource-title').textContent = names[resource];
+  setMethod(operations.find((x) => x.id === opId).method);
+  $('#req-note').textContent = notes[resource][opId];
 
-  $('#resource-desc').textContent =
-    resource === 'users'
-      ? 'Gestiona usuarios, contraseñas protegidas y avatares mediante peticiones HTTP reales.'
-      : 'Gestiona mascotas, vincúlalas a usuarios y sube hasta cinco imágenes por petición.';
+  buildFields();
+  updatePath();
 
-  $('#records-title').textContent =
-    resource === 'users'
-      ? 'Usuarios registrados'
-      : 'Mascotas registradas';
-
-  $('#breadcrumb').textContent = names[resource];
-
-  selectOperation('list');
-  loadRecords();
-}
-
-// ==========================================
-// SELECCIÓN DE OPERACIONES HTTP
-// ==========================================
-
-function selectOperation(id) {
-  state.operation = id;
-
-  const op = operations.find((x) => x.id === id);
-
-  $('#operations').innerHTML = operations.map((x) => `
-    <button
-      class="op ${x.id === id ? 'active' : ''}"
-      data-op="${x.id}"
-    >
-      <span class="verb ${x.method.toLowerCase()}">
-        ${x.method}
-      </span>
-      ${x.name}
-    </button>
-  `).join('');
-
-  $('#form-title').textContent = op.name;
-  $('#method-pill').textContent = op.method;
-  $('#method-pill').className = 'method-pill';
-  $('#endpoint-method').textContent = op.method;
-
-  $('#endpoint-path').textContent =
-    `/api/${state.resource}${
-      ['one', 'update', 'delete'].includes(id)
-        ? '/:id'
-        : ''
-    }`;
-
-  $('#fields').innerHTML = '';
-
-  if (['one', 'update', 'delete'].includes(id)) {
-    addField('id', 'ID del registro', 'id');
-  }
-
-  if (['create', 'update'].includes(id)) {
-    schemas[state.resource].forEach((f) => {
-      addField(...f);
-    });
-  }
-
-  if (id === 'list') {
-    $('#fields').innerHTML = `
-      <p class="note">
-        No necesitas enviar parámetros.
-        Consulta todos los registros actuales.
-      </p>
-    `;
-  }
-
-  if (id === 'delete') {
-    $('#fields').insertAdjacentHTML(
-      'beforeend',
-      `<p class="note">
-        Atención: esta acción elimina el registro en el archivo JSON.
-      </p>`
-    );
+  if (resourceChanged) {
+    loadRecords();
   }
 }
 
+function showManual() {
+  state.manual = true;
+
+  markRoute();
+
+  $('#request-form').hidden = true;
+  $('#manual-form').hidden = false;
+
+  setMethod($('#manual-method').value);
+  $('#req-note').textContent =
+    'Cualquier método y ruta. El cuerpo se envía como JSON; para subir archivos usa los endpoints de la lista.';
+
+  updatePath();
+}
+
 // ==========================================
-// CREACIÓN DINÁMICA DE CAMPOS
+// CAMPOS DEL FORMULARIO
 // ==========================================
 
-function addField(key, label, type) {
-  const container = document.createElement('div');
-  container.className = 'field';
+function buildFields() {
+  $('#fields').replaceChildren();
 
-  const lab = document.createElement('label');
-  lab.className = 'fieldlabel';
-  lab.textContent = label;
-  lab.htmlFor = 'f-' + key;
+  if (withId.includes(state.operation)) {
+    addField('id', 'id');
+  }
 
-  container.append(lab);
+  if (['create', 'update'].includes(state.operation)) {
+    schemas[state.resource].forEach((f) => addField(...f));
+  }
+}
+
+function addField(key, type, example = '') {
+  const required =
+    key === 'id' ||
+    (state.operation === 'create' && key !== 'avatar');
+
+  const wrap = document.createElement('div');
+  wrap.className =
+    'field' + (['id', 'owner', 'file', 'multi'].includes(type) ? ' wide' : '');
+
+  const label = document.createElement('label');
+  label.htmlFor = 'f-' + key;
+
+  const name = document.createElement('code');
+  name.textContent = key;
+  label.append(name);
+
+  if (required) {
+    const req = document.createElement('span');
+    req.textContent = 'requerido';
+    label.append(req);
+  }
+
+  wrap.append(label);
 
   let el;
 
@@ -210,9 +212,9 @@ function addField(key, label, type) {
     el = document.createElement('select');
 
     const options = [
-      ['', 'Seleccionar…'],
-      ['macho', 'Macho'],
-      ['hembra', 'Hembra']
+      ['', state.operation === 'update' ? 'Sin cambios' : 'Seleccionar…'],
+      ['macho', 'macho'],
+      ['hembra', 'hembra']
     ];
 
     options.forEach(([val, txt]) => {
@@ -224,117 +226,61 @@ function addField(key, label, type) {
       el.append(o);
     });
 
-  } else if (type === 'owner') {
-    el = document.createElement('input');
-    el.type = 'text';
-    el.setAttribute('list', 'owner-list');
-    el.placeholder = 'UUID del usuario propietario';
-
-    const list = document.createElement('datalist');
-    list.id = 'owner-list';
-
-    container.append(list);
-
-    fetch('/api/users')
-      .then((r) => r.json())
-      .then((users) => {
-        if (!Array.isArray(users)) return;
-
-        list.replaceChildren();
-
-        users.forEach((u) => {
-          const option = document.createElement('option');
-
-          option.value = u.id;
-          option.label =
-            u.nombre ||
-            u.firstname ||
-            u.usuario ||
-            u.username ||
-            u.id;
-
-          list.append(option);
-        });
-      })
-      .catch(() => {});
-
   } else {
     el = document.createElement('input');
+    el.type = { id: 'text', owner: 'text', multi: 'file' }[type] || type;
+    el.spellcheck = false;
 
-    el.type =
-      type === 'id'
-        ? 'text'
-        : type === 'multi'
-          ? 'file'
-          : type;
+    if (example) el.placeholder = example;
 
-    if (type === 'number') {
-      el.min = '0';
+    if (type === 'id') {
+      el.setAttribute('list', 'id-options');
+      el.placeholder = 'UUID: pégalo o elígelo de la lista';
     }
 
-    if (type === 'multi') {
-      el.multiple = true;
+    if (type === 'owner') {
+      el.setAttribute('list', 'owner-options');
+      el.placeholder = 'UUID de un usuario existente';
     }
+
+    if (type === 'number') el.min = '0';
+    if (type === 'password') el.autocomplete = 'new-password';
+    if (type === 'multi') el.multiple = true;
 
     if (type === 'file' || type === 'multi') {
       el.accept = 'image/png,image/jpeg,image/webp';
-    }
-
-    if (type === 'id') {
-      el.placeholder = 'Pega aquí el UUID del registro';
-    }
-
-    if (type === 'password') {
-      el.autocomplete = 'new-password';
     }
   }
 
   el.id = 'f-' + key;
   el.name = key;
+  el.required = required;
 
-  if (type === 'id') {
-    el.required = true;
+  wrap.append(el);
+
+  if (type === 'file' || type === 'multi') {
+    const hint = document.createElement('small');
+
+    hint.className = 'hint';
+    hint.textContent =
+      (type === 'multi' ? 'De 1 a 5 imágenes. ' : '') +
+      'PNG, JPG o WEBP, máximo 5 MB por archivo.';
+
+    wrap.append(hint);
   }
 
-  if (
-    state.operation === 'create' &&
-    !['avatar', 'img'].includes(key)
-  ) {
-    el.required = true;
-  }
-
-  if (state.operation === 'create' && key === 'img') {
-    el.required = true;
-  }
-
-  container.append(el);
-
-  if (type === 'multi') {
-    const help = document.createElement('small');
-
-    help.className = 'help';
-    help.textContent =
-      'Puedes seleccionar hasta 5 imágenes (máximo 5 MB por archivo). En PUT reemplaza las anteriores.';
-
-    container.append(help);
-  }
-
-  $('#fields').append(container);
+  $('#fields').append(wrap);
 }
 
 // ==========================================
 // PETICIONES HTTP
 // ==========================================
 
-async function request(method, url, body) {
+async function send(method, url, options = {}) {
   const start = performance.now();
 
   try {
-    const response = await fetch(url, {
-      method,
-      ...(body ? { body } : {})
-    });
-
+    const response = await fetch(url, { method, ...options });
     const raw = await response.text();
 
     let data;
@@ -342,11 +288,12 @@ async function request(method, url, body) {
     try {
       data = JSON.parse(raw);
     } catch {
-      data = { respuesta: raw };
+      data = raw;
     }
 
     return {
       status: response.status,
+      statusText: response.statusText || reasons[response.status] || '',
       ok: response.ok,
       data,
       ms: Math.round(performance.now() - start)
@@ -356,39 +303,66 @@ async function request(method, url, body) {
     return {
       status: 0,
       ok: false,
-      data: {
-        error: 'No se pudo conectar con el servidor',
-        detalle: e.message
-      },
+      data: { error: 'No se pudo conectar con el servidor', detalle: e.message },
       ms: Math.round(performance.now() - start)
     };
   }
 }
 
 // ==========================================
-// MOSTRAR RESPUESTA DE LA API
+// RESPUESTA
 // ==========================================
 
-function renderResponse(result, url) {
-  const badge = $('#response-status');
+function highlight(json) {
+  const escaped = json
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
 
-  badge.textContent = result.status
-    ? `${result.status} ${result.ok ? 'OK' : 'ERROR'}`
-    : 'SIN CONEXIÓN';
+  return escaped.replace(
+    /("(?:\\.|[^"\\])*")(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?/g,
+    (match, str, colon, lit) => {
+      if (str) {
+        return colon
+          ? `<span class="j-key">${str}</span>${colon}`
+          : `<span class="j-str">${str}</span>`;
+      }
 
-  badge.className =
-    'status ' + (result.ok ? 'success' : 'failure');
-
-  $('#duration').textContent = result.ms + ' ms';
-  $('#response-url').textContent = url;
-
-  state.lastResponse = JSON.stringify(
-    result.data,
-    null,
-    2
+      return `<span class="${lit ? 'j-lit' : 'j-num'}">${match}</span>`;
+    }
   );
+}
 
-  $('#response-json').textContent = state.lastResponse;
+function renderResponse(result, method, url) {
+  const status = $('#res-status');
+
+  status.textContent = result.status
+    ? `${result.status} ${result.statusText}`.trim()
+    : 'Sin conexión';
+
+  status.className =
+    'status ' + (
+      result.ok
+        ? 'ok'
+        : result.status >= 400 && result.status < 500
+          ? 'warn'
+          : 'err'
+    );
+
+  $('#res-meta').textContent = `${method} ${url} · ${result.ms} ms`;
+
+  const pre = $('#response-json');
+  pre.classList.remove('placeholder');
+
+  if (typeof result.data === 'string') {
+    state.lastResponse = result.data;
+    pre.textContent = result.data || '(respuesta vacía)';
+  } else {
+    state.lastResponse = JSON.stringify(result.data, null, 2);
+    pre.innerHTML = highlight(state.lastResponse);
+  }
+
+  $('#copy-response').hidden = false;
 }
 
 // ==========================================
@@ -398,15 +372,9 @@ function renderResponse(result, url) {
 $('#request-form').addEventListener('submit', async (e) => {
   e.preventDefault();
 
-  const op = operations.find(
-    (x) => x.id === state.operation
-  );
-
+  const op = operations.find((x) => x.id === state.operation);
   const form = e.currentTarget;
-
-  const id = form.elements
-    .namedItem('id')
-    ?.value.trim();
+  const id = form.elements.namedItem('id')?.value.trim();
 
   let url = '/api/' + state.resource;
 
@@ -429,9 +397,7 @@ $('#request-form').addEventListener('submit', async (e) => {
           return toast('Máximo 5 imágenes');
         }
 
-        files.forEach((file) => {
-          body.append(key, file);
-        });
+        files.forEach((file) => body.append(key, file));
 
       } else if (el.value.trim()) {
         body.append(key, el.value.trim());
@@ -441,7 +407,7 @@ $('#request-form').addEventListener('submit', async (e) => {
 
   if (
     state.operation === 'delete' &&
-    !confirm('¿Eliminar este registro definitivamente?')
+    !confirm('¿Eliminar este registro?')
   ) {
     return;
   }
@@ -451,317 +417,338 @@ $('#request-form').addEventListener('submit', async (e) => {
   btn.disabled = true;
   btn.textContent = 'Enviando…';
 
-  const result = await request(op.method, url, body);
+  const result = await send(op.method, url, body ? { body } : {});
 
-  renderResponse(result, url);
+  renderResponse(result, op.method, url);
 
   btn.disabled = false;
-  btn.textContent = '▶ Enviar petición';
+  btn.textContent = 'Enviar';
 
-  toast(
-    result.ok
-      ? 'Petición completada'
-      : 'La petición devolvió un error'
-  );
-
-  if (result.ok && state.operation !== 'one') {
+  if (result.ok && op.method !== 'GET') {
     loadRecords();
   }
 });
 
-// ==========================================
-// CARGAR Y MOSTRAR REGISTROS
-// ==========================================
+$('#request-form').addEventListener('input', updatePath);
 
-async function loadRecords() {
-  const resource = state.resource;
-  const target = $('#records');
-
-  target.innerHTML = `
-    <div class="empty">
-      Consultando registros…
-    </div>
-  `;
-
-  const result = await request(
-    'GET',
-    '/api/' + resource
-  );
-
-  if (resource !== state.resource) return;
-
-  if (!result.ok || !Array.isArray(result.data)) {
-    target.innerHTML = `
-      <div class="empty">
-        No fue posible cargar registros.
-      </div>
-    `;
-    return;
-  }
-
-  state.records = result.data;
-
-  if (!result.data.length) {
-    target.innerHTML = `
-      <div class="empty">
-        No hay registros todavía.
-        Utiliza POST para crear el primero.
-      </div>
-    `;
-    return;
-  }
-
-  target.replaceChildren();
-
-  result.data.forEach((item) => {
-    const card = document.createElement('article');
-    card.className = 'record';
-
-    const top = document.createElement('div');
-    top.className = 'record-top';
-
-    const icon = document.createElement('div');
-    icon.className = 'record-icon';
-
-    icon.textContent =
-      resource === 'users' ? '♙' : '♧';
-
-    top.append(icon);
-    card.append(top);
-
-    // Título del registro
-    const title = document.createElement('h4');
-
-    title.textContent =
-      resource === 'users'
-        ? `${item.nombre || item.firstname || ''} ${
-            item.apellidos || item.lastname || ''
-          }`.trim() ||
-          item.usuario ||
-          item.username ||
-          'Usuario'
-        : `${item.especie || 'Mascota'} · ${
-            item.color || 'Sin color'
-          }`;
-
-    card.append(title);
-
-    // Información secundaria
-    const sub = document.createElement('p');
-
-    sub.textContent =
-      resource === 'users'
-        ? '@' + (
-            item.usuario ||
-            item.username ||
-            'sin usuario'
-          )
-        : `Edad: ${item.edad ?? '—'} · Sexo: ${
-            item.sexo || '—'
-          }`;
-
-    card.append(sub);
-
-    // ID del registro
-    const id = document.createElement('code');
-    id.textContent = item.id;
-
-    card.append(id);
-
-    // Imágenes asociadas
-    const images =
-      resource === 'users'
-        ? (item.avatar ? [item.avatar] : [])
-        : (Array.isArray(item.img) ? item.img : []);
-
-    images
-      .filter((x) =>
-        typeof x === 'string' &&
-        x.startsWith('/img/')
-      )
-      .slice(0, 2)
-      .forEach((src) => {
-        const im = document.createElement('img');
-
-        im.src = src;
-        im.alt = 'Imagen guardada';
-        im.loading = 'lazy';
-
-        card.append(im);
-      });
-
-    // Botones de acciones
-    const actions = document.createElement('div');
-    actions.className = 'record-buttons';
-
-    const buttons = [
-      ['one', 'Ver'],
-      ['update', 'Editar'],
-      ['delete', 'Eliminar']
-    ];
-
-    buttons.forEach(([action, text]) => {
-      const b = document.createElement('button');
-
-      b.textContent = text;
-
-      b.onclick = () => {
-        selectOperation(action);
-
-        $('#f-id').value = item.id;
-
-        if (action === 'update') {
-          schemas[resource].forEach(([key]) => {
-            const el = $('#f-' + key);
-
-            if (
-              el &&
-              el.type !== 'file' &&
-              item[key] != null
-            ) {
-              el.value = item[key];
-            }
-          });
-        }
-
-        window.scrollTo({
-          top: 0,
-          behavior: 'smooth'
-        });
-      };
-
-      actions.append(b);
-    });
-
-    card.append(actions);
-    target.append(card);
-  });
-}
-
-// ==========================================
-// EVENTOS DE NAVEGACIÓN Y BOTONES
-// ==========================================
-
-$('#operations').addEventListener('click', (e) => {
-  const btn = e.target.closest('[data-op]');
-
-  if (btn) {
-    selectOperation(btn.dataset.op);
-  }
+$('#request-form').addEventListener('reset', () => {
+  setTimeout(updatePath);
 });
 
-document.querySelectorAll('.nav').forEach((b) => {
-  b.addEventListener('click', () => {
-    navigate(b.dataset.page);
-  });
-});
-
-document.querySelectorAll('[data-go]').forEach((b) => {
-  b.addEventListener('click', () => {
-    navigate(b.dataset.go);
-  });
-});
-
-$('#tab-users').onclick = () => setResource('users');
-$('#tab-pets').onclick = () => setResource('pets');
-
-$('#load-records').onclick = loadRecords;
-
-$('#refresh-list').onclick = () => {
-  selectOperation('list');
-  $('#request-form').requestSubmit();
-};
-
-// Copiar respuesta JSON
-$('#copy-response').onclick = () => {
-  navigator.clipboard
-    .writeText(state.lastResponse)
-    .then(() => toast('JSON copiado'))
-    .catch(() => toast('No se pudo copiar'));
-};
-
 // ==========================================
-// PLAYGROUND: PETICIONES HTTP LIBRES
+// PETICIÓN MANUAL
 // ==========================================
 
-$('#free-send').onclick = async () => {
-  const method = $('#free-method').value;
-  const url = $('#free-path').value.trim();
+$('#manual-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  const method = $('#manual-method').value;
+  const url = $('#manual-path').value.trim();
 
   if (!url.startsWith('/') || url.startsWith('//')) {
-    return toast('La ruta debe comenzar con /');
+    return toast('La ruta debe empezar con /');
   }
 
   let body;
 
-  const raw = $('#free-body').value.trim();
+  const raw = $('#manual-body').value.trim();
 
-  if (
-    raw &&
-    method !== 'GET' &&
-    method !== 'DELETE'
-  ) {
+  if (raw && method !== 'GET' && method !== 'DELETE') {
     try {
       body = JSON.stringify(JSON.parse(raw));
     } catch {
-      return toast('JSON inválido');
+      return toast('El cuerpo no es JSON válido');
     }
   }
 
-  const t = performance.now();
+  const result = await send(
+    method,
+    url,
+    body ? { headers: { 'Content-Type': 'application/json' }, body } : {}
+  );
 
-  try {
-    const response = await fetch(url, {
-      method,
-      headers: body
-        ? { 'Content-Type': 'application/json' }
-        : {},
-      body
+  renderResponse(result, method, url);
+
+  if (result.ok && method !== 'GET') {
+    loadRecords();
+  }
+});
+
+$('#manual-method').addEventListener('change', (e) => {
+  setMethod(e.target.value);
+});
+
+$('#manual-path').addEventListener('input', updatePath);
+
+// ==========================================
+// DATOS GUARDADOS
+// ==========================================
+
+function fullName(u) {
+  return `${u.nombre || u.firstname || ''} ${u.apellidos || u.lastname || ''}`.trim();
+}
+
+function userLabel(u) {
+  return fullName(u) || u.usuario || u.username || u.id;
+}
+
+function thumbs(list) {
+  const box = document.createElement('div');
+  box.className = 'thumbs';
+
+  list.forEach((src) => {
+    if (typeof src === 'string' && src.startsWith('/img/')) {
+      const img = document.createElement('img');
+
+      img.className = 'thumb';
+      img.src = src;
+      img.alt = '';
+      img.loading = 'lazy';
+      img.onerror = () => img.replaceWith(missingThumb(src));
+
+      box.append(img);
+    } else {
+      box.append(missingThumb(src));
+    }
+  });
+
+  return list.length ? box : '—';
+}
+
+function missingThumb(src) {
+  const box = document.createElement('span');
+
+  box.className = 'thumb missing';
+  box.title = 'Archivo no disponible: ' + src;
+
+  return box;
+}
+
+function owner(id) {
+  const user = state.users.find((u) => u.id === id);
+
+  if (user) {
+    return '@' + (user.usuario || user.username || userLabel(user));
+  }
+
+  const span = document.createElement('span');
+
+  span.className = 'muted';
+  span.textContent = 'no existe';
+
+  return span;
+}
+
+const columns = {
+  users: [
+    ['Nombre', (u) => fullName(u) || '—'],
+    ['Usuario', (u) => u.usuario || u.username || '—'],
+    ['Avatar', (u) => thumbs(u.avatar ? [u.avatar] : [])]
+  ],
+  pets: [
+    ['Especie', (p) => p.especie ?? '—'],
+    ['Color', (p) => p.color ?? '—'],
+    ['Edad', (p) => p.edad ?? '—'],
+    ['Sexo', (p) => p.sexo ?? '—'],
+    ['Dueño', (p) => owner(p.duehno)],
+    ['Imágenes', (p) => thumbs(Array.isArray(p.img) ? p.img : [])]
+  ]
+};
+
+function tableMessage(text) {
+  const cols = columns[state.resource].length + 2;
+
+  $('#records').innerHTML =
+    `<tbody><tr><td class="empty" colspan="${cols}"></td></tr></tbody>`;
+
+  $('#records td').textContent = text;
+}
+
+function setHealth(online) {
+  $('#api-dot').className = 'dot ' + (online ? 'on' : 'off');
+  $('#api-health').textContent =
+    (online ? 'Servidor activo en ' : 'Sin conexión con ') + location.host;
+}
+
+function fillDatalist(id, items, label) {
+  const list = $('#' + id);
+
+  list.replaceChildren(
+    ...items.map((item) => {
+      const o = document.createElement('option');
+
+      o.value = item.id;
+      o.label = label(item);
+
+      return o;
+    })
+  );
+}
+
+async function loadRecords() {
+  const resource = state.resource;
+
+  $('#data-title').textContent = resources[resource].name;
+  $('#data-file').textContent = resources[resource].file;
+  $('#data-count').textContent = '';
+
+  tableMessage('Cargando…');
+
+  const [result, users] = await Promise.all([
+    send('GET', '/api/' + resource),
+    resource === 'pets' ? send('GET', '/api/users') : null
+  ]);
+
+  setHealth(result.status !== 0);
+
+  const userList = resource === 'users' ? result : users;
+
+  if (userList?.ok && Array.isArray(userList.data)) {
+    state.users = userList.data;
+    fillDatalist('owner-options', state.users, userLabel);
+  }
+
+  if (resource !== state.resource) return;
+
+  if (!result.ok || !Array.isArray(result.data)) {
+    return tableMessage('No se pudieron cargar los registros.');
+  }
+
+  state.records = result.data;
+
+  $('#data-count').textContent =
+    result.data.length === 1 ? '1 registro' : `${result.data.length} registros`;
+
+  fillDatalist(
+    'id-options',
+    result.data,
+    resource === 'users'
+      ? userLabel
+      : (p) => `${p.especie ?? ''} ${p.color ?? ''}`.trim()
+  );
+
+  if (!result.data.length) {
+    return tableMessage('Sin registros. Crea uno con POST.');
+  }
+
+  renderTable(resource, result.data);
+}
+
+function renderTable(resource, items) {
+  const table = $('#records');
+  const head = document.createElement('thead');
+  const body = document.createElement('tbody');
+
+  const headRow = document.createElement('tr');
+
+  ['ID', ...columns[resource].map(([title]) => title), ''].forEach((title) => {
+    const th = document.createElement('th');
+    th.textContent = title;
+    headRow.append(th);
+  });
+
+  head.append(headRow);
+
+  items.forEach((item) => {
+    const row = document.createElement('tr');
+
+    // ID abreviado; al hacer clic se copia completo
+    const idCell = document.createElement('td');
+    const idBtn = document.createElement('button');
+
+    idBtn.className = 'id-btn';
+    idBtn.type = 'button';
+    idBtn.title = item.id + ' (clic para copiar)';
+    idBtn.textContent = String(item.id).slice(0, 8);
+    idBtn.onclick = () => copy(item.id, 'ID copiado');
+
+    idCell.append(idBtn);
+    row.append(idCell);
+
+    columns[resource].forEach(([, value]) => {
+      const td = document.createElement('td');
+
+      td.append(value(item));
+      row.append(td);
     });
 
-    const txt = await response.text();
+    const actionsCell = document.createElement('td');
+    const actions = document.createElement('div');
 
-    let parsed;
+    actions.className = 'row-actions';
 
-    try {
-      parsed = JSON.parse(txt);
-    } catch {
-      parsed = txt;
-    }
+    [
+      ['one', 'Ver'],
+      ['update', 'Editar'],
+      ['delete', 'Eliminar']
+    ].forEach(([op, text]) => {
+      const b = document.createElement('button');
 
-    $('#free-response').textContent =
-      typeof parsed === 'string'
-        ? parsed
-        : JSON.stringify(parsed, null, 2);
+      b.type = 'button';
+      b.textContent = text;
+      if (op === 'delete') b.className = 'danger';
+      b.onclick = () => useRecord(item, op);
 
-    $('#free-status').textContent =
-      `${response.status} · ${
-        Math.round(performance.now() - t)
-      } ms`;
+      actions.append(b);
+    });
 
-    $('#free-status').className =
-      'status ' + (
-        response.ok ? 'success' : 'failure'
-      );
+    actionsCell.append(actions);
+    row.append(actionsCell);
+    body.append(row);
+  });
 
-  } catch (e) {
-    $('#free-response').textContent = e.message;
-    $('#free-status').textContent = 'SIN CONEXIÓN';
-    $('#free-status').className = 'status failure';
+  table.replaceChildren(head, body);
+}
+
+// Carga un registro en el formulario de la operación elegida
+function useRecord(item, op) {
+  select(state.resource, op);
+
+  $('#f-id').value = item.id;
+
+  if (op === 'update') {
+    schemas[state.resource].forEach(([key]) => {
+      const el = $('#f-' + key);
+
+      if (el && el.type !== 'file' && item[key] != null) {
+        el.value = item[key];
+      }
+    });
   }
+
+  updatePath();
+
+  $('#request').scrollIntoView({
+    behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+    block: 'start'
+  });
+
+  if (op === 'one') {
+    $('#request-form').requestSubmit();
+  }
+}
+
+// ==========================================
+// EVENTOS
+// ==========================================
+
+document.querySelectorAll('.route[data-op]').forEach((b) => {
+  b.addEventListener('click', () => {
+    select(b.dataset.resource, b.dataset.op);
+  });
+});
+
+$('#route-manual').addEventListener('click', showManual);
+
+$('#load-records').onclick = loadRecords;
+
+$('#copy-response').onclick = () => {
+  copy(state.lastResponse, 'Respuesta copiada');
 };
 
 // ==========================================
-// INICIALIZACIÓN DE LA APLICACIÓN
+// INICIO
 // ==========================================
 
-fetch('/api/users')
-  .then((r) => {
-    $('#api-health').textContent =
-      r.ok ? 'Conectada' : 'Error ' + r.status;
-  })
-  .catch(() => {
-    $('#api-health').textContent = 'Desconectada';
-  });
-
-navigate('overview');
+select('users', 'list');
+$('#request-form').requestSubmit();
