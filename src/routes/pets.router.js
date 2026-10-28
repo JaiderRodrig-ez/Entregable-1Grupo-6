@@ -108,7 +108,64 @@ routerMascota.delete("/:id", async (req, res) => {
   } catch (e) {
     return res.status(500).json({ error: "Error al eliminar a la mascota" });
   }
-});
+});  
+
+routerMascota.put("/:id", subirMascota.array("img", 5),async (req, res) => {
+    const archivos = req.files || [];
+    try {
+      const { id } = req.params;
+      const { especie, color, edad, sexo, duehno } = req.body;
+      const mascotas = await leerJson("pets.json");
+      const mascota = mascotas.find((m) => m.id === id);
+
+      if (!mascota) {
+        await borrarArchivos(archivos.map((a) => a.path));
+        return res.status(404).json({error: "Mascota no encontrada"});
+      }
+
+      if (especie === undefined && color === undefined && edad === undefined && sexo === undefined && duehno === undefined && archivos.length === 0) {
+        return res.status(400).json({error: "No se enviaron datos para actualizar"});
+      }
+
+      if (duehno !== undefined) {
+        const duehnos = await leerJson("users.json");
+        if (!duehnos.some((d) => d.id === duehno)) {
+          await borrarArchivos(archivos.map((a) => a.path));
+          return res.status(400).json({
+            error: "El nuevo dueño no existe",
+          });
+        }
+        mascota.duehno = duehno;
+      }
+      
+      if (especie !== undefined) mascota.especie = especie;
+      if (color !== undefined) mascota.color = color;
+      if (edad !== undefined) mascota.edad = edad;
+      if (sexo !== undefined) mascota.sexo = sexo;
+
+      if (archivos.length > 0) {
+        const imagenesAnteriores = mascota.img || [];
+        const nuevasImagenes = archivos.map(
+          (a) => `/img/pets/${a.filename}`
+        );
+        mascota.img = nuevasImagenes;
+        await escribirJson("pets.json", mascotas);
+        const rutasAnteriores = imagenesAnteriores.map((url) =>
+          path.join(RAIZ_PUBLIC, url.replace(/^\/+/, ""))
+        );
+        await borrarArchivos(rutasAnteriores);
+      } else {
+        await escribirJson("pets.json", mascotas);
+      }
+      return res.status(200).json(mascota);
+    } catch (e) {
+      await borrarArchivos(archivos.map((a) => a.path));
+      return res.status(500).json({
+        error: "Error al actualizar la mascota",
+      });
+    }
+  }
+);
 
 async function leerJson(archivo) {
   const ruta = await obtenerRuta(archivo);
