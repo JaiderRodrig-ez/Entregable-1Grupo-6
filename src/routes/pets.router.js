@@ -76,6 +76,31 @@ routerMascota.post("/", async (req, res) => {
   }
 });
 
+routerMascota.delete("/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    let mascotas = await leerJson("pets.json");
+
+    let mascotaEliminada = null;
+    mascotas = mascotas.filter((m) => {
+      if (m.id === id) {
+        mascotaEliminada = m;
+        return false;
+      }
+      return true;
+    });
+    if (mascotaEliminada == null) {
+      return res.status(404).json({
+        error: "No existe la mascota que desea eliminar",
+      });
+    }
+    await escribirJson("pets.json", mascotas);
+    return res.status(201).send(mascotaEliminada);
+  } catch (e) {
+    return res.status(500).json({ error: "Error al eliminar a la mascota" });
+  }
+});
+
 async function leerJson(archivo) {
   const ruta = await obtenerRuta(archivo);
   const datos = await fs.readFile(ruta, "utf-8");
