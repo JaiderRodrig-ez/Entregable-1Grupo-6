@@ -1,8 +1,9 @@
 import { Router } from 'express';
+import crypto from "node:crypto"
 import fs from 'node:fs/promises';
 import path from 'node:path';
 //import { uploadUser } from '../middlewares/multer.middleware.js';
-//import { hashPassword } from '../utils/crypto.js';
+import { hashPassword } from '../utils/crypto.js';
 
 class User{
     constructor(nombre, apellidos, usuario, contrasenha, avatar){
@@ -31,12 +32,12 @@ router.post('/', /*uploadUser.single('avatar') ,*/ async(req, res) => {
 
         const users = await leerUsers();
 
-        //const passwordHash = hashPassword(contrasenha);
+        const passwordHash = hashPassword(contrasenha);
         const newUser = new User(
             nombre,
             apellidos,
             usuario,
-            contrasenha, /* passwordHash*/
+            passwordHash, /* passwordHash*/
             req.file ? `/img/users/${req.file.filename}` : null
         );
 
@@ -122,9 +123,9 @@ router.put('/:id', /* uploadUser.single('avatar'), */ async(req, res) => {
         if (apellidos) user.apellidos = apellidos;
         if (usuario) user.usuario = usuario;
         if (contrasenha){
-            //const hashContrasenha = hashPassword(contrasenha);
-            user.contrasenha = contrasenha;
-            //user.contrasenha = hashContrasenha;
+            const hashContrasenha = hashPassword(contrasenha);
+            //user.contrasenha = contrasenha;
+            user.contrasenha = hashContrasenha;
         }
         if (req.file) {
             if (user.avatar) {
