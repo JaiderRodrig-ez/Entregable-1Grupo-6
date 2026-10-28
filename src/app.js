@@ -12,10 +12,11 @@ const PORT = 3000;
 app.use(express.static(path.join(__dirname, "../public")));
 app.use(express.json());
 app.use("/users", usersRouter);
-app.use("/api/pets", routerMascota);
+app.use("/api/pets", routerMascota);  
+app.use("/api/users", usersRouter);
 
 app.get("/", (_req, res) => {
-  res.send("");
+  res.sendFile(path.join(__dirname, "../public/index.html"));
 });
 
 app.use((err, _req, res, _next) => {

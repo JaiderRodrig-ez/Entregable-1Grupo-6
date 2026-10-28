@@ -2,7 +2,7 @@ import { Router } from 'express';
 import crypto from "node:crypto"
 import fs from 'node:fs/promises';
 import path from 'node:path';
-//import { uploadUser } from '../middlewares/multer.middleware.js';
+import { subirAvatar } from '../middlewares/multer.middleware.js';
 import { hashPassword } from '../utils/crypto.js';
 
 class User{
@@ -22,7 +22,7 @@ const usersFile = path.join(import.meta.dirname, '../data/users.json');
 const leerUsers = async () => JSON.parse(await fs.readFile(usersFile, 'utf-8'));
 const escUsers = (users) => fs.writeFile(usersFile, JSON.stringify(users, null, 2));
 
-router.post('/', /*uploadUser.single('avatar') ,*/ async(req, res) => {
+router.post('/', subirAvatar.single('avatar'), async(req, res) => {
     try {
         const { nombre, apellidos, usuario, contrasenha } = req.body ?? {};
         if (!nombre || !apellidos || !usuario || !contrasenha) {
@@ -102,7 +102,7 @@ router.delete('/:id', async (req, res) => {
     }
 });
 
-router.put('/:id', /* uploadUser.single('avatar'), */ async(req, res) => {
+router.put('/:id', subirAvatar.single('avatar'), async(req, res) => {
     try {
 
         const { id } = req.params;
@@ -112,10 +112,10 @@ router.put('/:id', /* uploadUser.single('avatar'), */ async(req, res) => {
 
         if (!user) {
             if(req.file) await fs.unlink(req.file.path);
-            return res.status(400).json({error : 'Usuario no encontrado'});
+            return res.status(404).json({error : 'Usuario no encontrado'});
         }
         
-        if (!nombre && !apellidos && !usuario && !contrasenha){
+        if (!nombre && !apellidos && !usuario && !contrasenha && !req.file){
             return res.status(400).json({error : 'No se enviaron datos para actualizar'});
         }
         
