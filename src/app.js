@@ -1,13 +1,16 @@
-const express = require('express');
-const path = require('node:path');
+import express from "express";
+import routerMascota from "./routes/pets.router.js";
+const app = express();
+const PORT = 3000;
 
-const app = express()
-const port = 8080
+app.use("/api/pets", routerMascota);
 
-app.get('/', (req, res) => {
-  res.send('Hello World!')
+
+app.get('/', (_, res) => {
+  res.send('')
 })
 
-app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`)
-})s
+
+app.listen(PORT, () => {
+  console.log(`Escuchando en http://localhost:${PORT}`);
+});
