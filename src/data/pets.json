@@ -1,110 +1,159 @@
 [
   {
-    "id": "c3f1b4a0-8d21-4b76-92f1-5e8a71c93a01",
+    "id": "8756416b-bd39-4fdf-99a8-e4c28f6c4d68",
     "especie": "perro",
-    "color": "marron",
-    "edad": 3,
+    "color": "dorado",
+    "edad": "4",
     "sexo": "macho",
     "img": [
-      "https://ejemplo.com/imagenes/perro-marron-1.jpg",
-      "https://ejemplo.com/imagenes/perro-marron-2.jpg"
+      "/img/pets/1793226415810-golden-retriever-1.jpg",
+      "/img/pets/1793226415810-golden-retriever-2.jpg"
     ],
-    "duehno": "f47ac10b-58cc-4372-a567-0e02b2c3d479"
+    "duehno": "5cfad9f0-a720-4231-bca6-08e2d0f2c762"
   },
   {
-    "id": "e9b2c7d4-1a35-4e89-b0f2-7d6a45e12f02",
+    "id": "1aa4bde5-a7a4-4531-993a-0b11285a7be7",
     "especie": "gato",
-    "color": "blanco",
-    "edad": 2,
+    "color": "naranja",
+    "edad": "3",
+    "sexo": "macho",
+    "img": [
+      "/img/pets/1793226415815-gato-naranja.jpg"
+    ],
+    "duehno": "5cfad9f0-a720-4231-bca6-08e2d0f2c762"
+  },
+  {
+    "id": "7258dcf3-7b2f-4d26-bd70-3845344e3cd7",
+    "especie": "perro",
+    "color": "tricolor",
+    "edad": "6",
     "sexo": "hembra",
     "img": [
-      "https://ejemplo.com/imagenes/gato-blanco-1.jpg"
+      "/img/pets/1793226415820-beagle-1.jpg",
+      "/img/pets/1793226415821-beagle-2.jpg"
     ],
-    "duehno": "7b89d4a2-11c5-4d33-9e45-8f6a7b8c9d01"
+    "duehno": "992642b9-5874-4783-bdfe-bcfd9d4fa0e1"
   },
   {
-    "id": "a4d8f1e2-5c67-4a12-8e34-9b0c78d45e03",
+    "id": "3007369c-e837-4c7f-8af6-2282a2bf9ac8",
     "especie": "ave",
-    "color": "verde",
-    "edad": 1,
-    "sexo": "hembra",
-    "img": [
-      "https://ejemplo.com/imagenes/loro-verde-1.jpg",
-      "https://ejemplo.com/imagenes/loro-verde-2.jpg",
-      "https://ejemplo.com/imagenes/loro-verde-3.jpg"
-    ],
-    "duehno": "f47ac10b-58cc-4372-a567-0e02b2c3d479"
-  },
-  {
-    "id": "bf5fb462-7151-4bc8-b84b-7293c8f3dcad",
-    "especie": "perro",
-    "color": "dorado",
-    "edad": 4,
-    "sexo": "macho",
-    "img": [
-      "https://ejemplo.com/imagenes/golden-1.jpg",
-      "https://ejemplo.com/imagenes/golden-2.jpg"
-    ],
-    "duehno": "f47ac10b-58cc-4372-a567-0e02b2c3d479"
-  },
-  {
-    "id": "7633c22a-4a64-452a-a588-30941a8527ab",
-    "especie": "perro",
-    "color": "dorado",
-    "edad": 4,
-    "sexo": "macho",
-    "img": [
-      "https://ejemplo.com/imagenes/golden-1.jpg",
-      "https://ejemplo.com/imagenes/golden-2.jpg"
-    ],
-    "duehno": "f47ac10b-58cc-4372-a567-0e02b2c3d479"
-  },
-  {
-    "id": "e3e0fadf-0785-4ab0-99b4-371a6ad590b7",
-    "especie": "perro",
-    "color": "dorado",
-    "edad": 4,
-    "sexo": "macho",
-    "img": [
-      "https://ejemplo.com/imagenes/golden-1.jpg",
-      "https://ejemplo.com/imagenes/golden-2.jpg"
-    ],
-    "duehno": "f47ac10b-58cc-4372-a567-0e02b2c3d479"
-  },
-  {
-    "id": "ad2f83d4-c229-4f27-8e8a-072f6e9eac72",
-    "especie": "perro",
-    "color": "dorado",
-    "edad": 4,
-    "sexo": "macho",
-    "img": [
-      "https://ejemplo.com/imagenes/golden-1.jpg",
-      "https://ejemplo.com/imagenes/golden-2.jpg"
-    ],
-    "duehno": "f47ac10b-58cc-4372-a567-0e02b2c3d479"
-  },
-  {
-    "id": "6a1139c6-21e5-4c65-a559-1635276a99f0",
-    "especie": "perro",
-    "color": "dorado",
-    "edad": 4,
-    "sexo": "macho",
-    "img": [
-      "https://ejemplo.com/imagenes/golden-1.jpg",
-      "https://ejemplo.com/imagenes/golden-2.jpg"
-    ],
-    "duehno": "f47ac10b-58cc-4372-a567-0e02b2c3d479"
-  },
-  {
-    "id": "a17459a3-7b3a-4feb-991a-de0cb8d10202",
-    "especie": "gato",
-    "color": "dorado",
+    "color": "verde y amarillo",
     "edad": "1",
     "sexo": "macho",
     "img": [
-      "/img/pets/1793206940809-Screenshot_2026-10-28_115758.png",
-      "/img/pets/1793206940810-Screenshot_2026-10-28_103209.png"
+      "/img/pets/1793226415826-periquito.jpg"
     ],
-    "duehno": "f47ac10b-58cc-4372-a567-0e02b2c3d479"
+    "duehno": "992642b9-5874-4783-bdfe-bcfd9d4fa0e1"
+  },
+  {
+    "id": "47127afd-e56f-498c-ad5a-e0f4b4f8be3c",
+    "especie": "perro",
+    "color": "blanco",
+    "edad": "3",
+    "sexo": "hembra",
+    "img": [
+      "/img/pets/1793226415830-husky-siberiano.jpg"
+    ],
+    "duehno": "ae9ffac0-e9d1-4241-8b70-0eaac51b8c7e"
+  },
+  {
+    "id": "b4df4f38-6c5e-4097-9ee6-82ce908f13cf",
+    "especie": "gato",
+    "color": "negro",
+    "edad": "1",
+    "sexo": "hembra",
+    "img": [
+      "/img/pets/1793226415834-gato-negro.jpg"
+    ],
+    "duehno": "ae9ffac0-e9d1-4241-8b70-0eaac51b8c7e"
+  },
+  {
+    "id": "a7f5d4e2-2446-4804-b52e-c62e94dad5f6",
+    "especie": "conejo",
+    "color": "negro",
+    "edad": "2",
+    "sexo": "hembra",
+    "img": [
+      "/img/pets/1793226415839-conejo-holland-lop.jpg"
+    ],
+    "duehno": "ae9ffac0-e9d1-4241-8b70-0eaac51b8c7e"
+  },
+  {
+    "id": "414864ac-4d87-4b31-aaf2-8832fda9ed2a",
+    "especie": "perro",
+    "color": "beige",
+    "edad": "7",
+    "sexo": "macho",
+    "img": [
+      "/img/pets/1793226415844-pug-1.jpg",
+      "/img/pets/1793226415844-pug-2.jpg"
+    ],
+    "duehno": "2eb18f27-fdf4-4a17-b306-fea9e1538181"
+  },
+  {
+    "id": "3f6f5877-5ded-4fb9-b54d-4cf4ff56643e",
+    "especie": "gato",
+    "color": "gris atigrado",
+    "edad": "5",
+    "sexo": "macho",
+    "img": [
+      "/img/pets/1793226415851-gato-atigrado.jpg"
+    ],
+    "duehno": "2eb18f27-fdf4-4a17-b306-fea9e1538181"
+  },
+  {
+    "id": "59c95f68-a5cd-466b-90e3-68bcad2ed7d9",
+    "especie": "ave",
+    "color": "gris",
+    "edad": "8",
+    "sexo": "macho",
+    "img": [
+      "/img/pets/1793226415856-cacatua.jpg"
+    ],
+    "duehno": "2eb18f27-fdf4-4a17-b306-fea9e1538181"
+  },
+  {
+    "id": "05d2cb46-e44e-4668-a284-5553a3d1e9c8",
+    "especie": "perro",
+    "color": "crema",
+    "edad": "2",
+    "sexo": "macho",
+    "img": [
+      "/img/pets/1793226415861-labrador.jpg"
+    ],
+    "duehno": "4ce62284-228b-4e21-8a54-ae999f7109cd"
+  },
+  {
+    "id": "62953011-c8b9-4015-8ddc-4508263433c3",
+    "especie": "gato",
+    "color": "blanco y atigrado",
+    "edad": "2",
+    "sexo": "hembra",
+    "img": [
+      "/img/pets/1793226415866-gato-blanco-atigrado.jpg"
+    ],
+    "duehno": "4ce62284-228b-4e21-8a54-ae999f7109cd"
+  },
+  {
+    "id": "bf3d2e15-da5f-4380-bfc7-b35d43889618",
+    "especie": "conejo",
+    "color": "gris",
+    "edad": "1",
+    "sexo": "macho",
+    "img": [
+      "/img/pets/1793226415871-conejo-enano.jpg"
+    ],
+    "duehno": "4ce62284-228b-4e21-8a54-ae999f7109cd"
+  },
+  {
+    "id": "9355a1b1-cca8-4edc-b113-a9e123674c6e",
+    "especie": "hámster",
+    "color": "dorado",
+    "edad": "1",
+    "sexo": "hembra",
+    "img": [
+      "/img/pets/1793226415874-hamster-dorado.jpg"
+    ],
+    "duehno": "5cfad9f0-a720-4231-bca6-08e2d0f2c762"
   }
 ]

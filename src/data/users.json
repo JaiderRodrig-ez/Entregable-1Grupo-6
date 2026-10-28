@@ -1,26 +1,57 @@
 [
   {
-    "id": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
-    "firstname": "Wilmer",
-    "lastname": "Patiño",
-    "username": "w.patino",
-    "password": "$2b$10$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36eK89u2v6J3x4r3t0Y8e9a",
-    "avatar": "/img/users/avatar-1710000000.png"
+    "id": "5cfad9f0-a720-4231-bca6-08e2d0f2c762",
+    "nombre": "Laura",
+    "apellidos": "Gómez Restrepo",
+    "usuario": "l.gomez",
+    "contrasenha": {
+      "iv": "25750f84397d90327a5e26741a471286",
+      "encripted": "da2e1329d63fee55f7b6f7cdce8c62c6"
+    },
+    "avatar": "/img/users/1793226415779-laura-gomez.jpg"
   },
   {
-    "id": "7b89d4a2-11c5-4d33-9e45-8f6a7b8c9d01",
-    "firstname": "Laura",
-    "lastname": "Gómez",
-    "username": "l.gomez",
-    "password": "$2b$10$K9s1aL0fM1qO2w3e4r5t6u7i8o9p0a1s2d3f4g5h6j7k8l9z0x1c2",
-    "avatar": "/img/users/avatar-1710000001.png"
+    "id": "992642b9-5874-4783-bdfe-bcfd9d4fa0e1",
+    "nombre": "Andrés",
+    "apellidos": "Rojas Pardo",
+    "usuario": "a.rojas",
+    "contrasenha": {
+      "iv": "25750f84397d90327a5e26741a471286",
+      "encripted": "187aa31780ff3eb8c4196618cb4ec738"
+    },
+    "avatar": "/img/users/1793226415789-andres-rojas.jpg"
   },
   {
-    "id": "3e5a7b1c-9d8f-4a2e-b6c3-1f2e3d4c5b6a",
-    "firstname": "Carlos",
-    "lastname": "Mendoza",
-    "username": "c.mendoza",
-    "password": "$2b$10$M8n7b6v5c4x3z2a1s0d9f8g7h6j5k4l3p2o1i0u9y8t7r6e5w4q3e",
-    "avatar": "/img/users/avatar-1710000002.png"
+    "id": "ae9ffac0-e9d1-4241-8b70-0eaac51b8c7e",
+    "nombre": "Valentina",
+    "apellidos": "Castro Ruiz",
+    "usuario": "v.castro",
+    "contrasenha": {
+      "iv": "25750f84397d90327a5e26741a471286",
+      "encripted": "7374edc2d9254f1c18c28dda2e847831"
+    },
+    "avatar": "/img/users/1793226415792-valentina-castro.jpg"
+  },
+  {
+    "id": "2eb18f27-fdf4-4a17-b306-fea9e1538181",
+    "nombre": "Santiago",
+    "apellidos": "Herrera Mejía",
+    "usuario": "s.herrera",
+    "contrasenha": {
+      "iv": "25750f84397d90327a5e26741a471286",
+      "encripted": "fea1d64b993100e2faad13dae4785763"
+    },
+    "avatar": "/img/users/1793226415797-santiago-herrera.jpg"
+  },
+  {
+    "id": "4ce62284-228b-4e21-8a54-ae999f7109cd",
+    "nombre": "Camila",
+    "apellidos": "Moreno Díaz",
+    "usuario": "c.moreno",
+    "contrasenha": {
+      "iv": "25750f84397d90327a5e26741a471286",
+      "encripted": "a9a19a64f5ae94398e0c4fdbb3d2d90c"
+    },
+    "avatar": "/img/users/1793226415804-camila-moreno.jpg"
   }
 ]

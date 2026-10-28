@@ -5,6 +5,7 @@ const state = {
   operation: 'list',
   manual: false,
   lastResponse: '',
+  lastObjectUrl: null,
   records: [],
   users: []
 };
@@ -281,6 +282,23 @@ async function send(method, url, options = {}) {
 
   try {
     const response = await fetch(url, { method, ...options });
+    const type = (response.headers.get('content-type') || '').split(';')[0];
+    const base = {
+      status: response.status,
+      statusText: response.statusText || reasons[response.status] || '',
+      ok: response.ok
+    };
+
+    // Imágenes y otros binarios no se leen como texto
+    if (!/^text\/|json|javascript|xml/.test(type) && type) {
+      const blob = await response.blob();
+      return {
+        ...base,
+        binary: { type, size: blob.size, src: type.startsWith('image/') ? URL.createObjectURL(blob) : null },
+        ms: Math.round(performance.now() - start)
+      };
+    }
+
     const raw = await response.text();
 
     let data;
@@ -292,9 +310,7 @@ async function send(method, url, options = {}) {
     }
 
     return {
-      status: response.status,
-      statusText: response.statusText || reasons[response.status] || '',
-      ok: response.ok,
+      ...base,
       data,
       ms: Math.round(performance.now() - start)
     };
@@ -353,8 +369,27 @@ function renderResponse(result, method, url) {
 
   const pre = $('#response-json');
   pre.classList.remove('placeholder');
+  if (state.lastObjectUrl) URL.revokeObjectURL(state.lastObjectUrl);
+  state.lastObjectUrl = null;
 
-  if (typeof result.data === 'string') {
+  if (result.binary) {
+    const { type, size, src } = result.binary;
+    const info = document.createElement('p');
+    info.className = 'binary-info';
+    info.textContent = `${type} · ${(size / 1024).toFixed(1)} KB`;
+    pre.replaceChildren(info);
+
+    if (src) {
+      const img = document.createElement('img');
+      img.className = 'response-img';
+      img.src = src;
+      img.alt = url;
+      pre.append(img);
+      state.lastObjectUrl = src;
+    }
+
+    state.lastResponse = new URL(url, location.origin).href;
+  } else if (typeof result.data === 'string') {
     state.lastResponse = result.data;
     pre.textContent = result.data || '(respuesta vacía)';
   } else {

@@ -540,6 +540,20 @@ pre {
     tab-size: 2;
 }
 
+.binary-info {
+    margin: 0 0 12px;
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 12px;
+}
+
+.response-img {
+    display: block;
+    max-width: 100%;
+    max-height: 520px;
+    border-radius: 4px;
+}
+
 pre.placeholder {
     color: var(--faint);
     font-family: var(--sans);
