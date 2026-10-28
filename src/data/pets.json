@@ -1,1 +1,110 @@
-[]
+[
+  {
+    "id": "c3f1b4a0-8d21-4b76-92f1-5e8a71c93a01",
+    "especie": "perro",
+    "color": "marron",
+    "edad": 3,
+    "sexo": "macho",
+    "img": [
+      "https://ejemplo.com/imagenes/perro-marron-1.jpg",
+      "https://ejemplo.com/imagenes/perro-marron-2.jpg"
+    ],
+    "duehno": "f47ac10b-58cc-4372-a567-0e02b2c3d479"
+  },
+  {
+    "id": "e9b2c7d4-1a35-4e89-b0f2-7d6a45e12f02",
+    "especie": "gato",
+    "color": "blanco",
+    "edad": 2,
+    "sexo": "hembra",
+    "img": [
+      "https://ejemplo.com/imagenes/gato-blanco-1.jpg"
+    ],
+    "duehno": "7b89d4a2-11c5-4d33-9e45-8f6a7b8c9d01"
+  },
+  {
+    "id": "a4d8f1e2-5c67-4a12-8e34-9b0c78d45e03",
+    "especie": "ave",
+    "color": "verde",
+    "edad": 1,
+    "sexo": "hembra",
+    "img": [
+      "https://ejemplo.com/imagenes/loro-verde-1.jpg",
+      "https://ejemplo.com/imagenes/loro-verde-2.jpg",
+      "https://ejemplo.com/imagenes/loro-verde-3.jpg"
+    ],
+    "duehno": "f47ac10b-58cc-4372-a567-0e02b2c3d479"
+  },
+  {
+    "id": "bf5fb462-7151-4bc8-b84b-7293c8f3dcad",
+    "especie": "perro",
+    "color": "dorado",
+    "edad": 4,
+    "sexo": "macho",
+    "img": [
+      "https://ejemplo.com/imagenes/golden-1.jpg",
+      "https://ejemplo.com/imagenes/golden-2.jpg"
+    ],
+    "duehno": "f47ac10b-58cc-4372-a567-0e02b2c3d479"
+  },
+  {
+    "id": "7633c22a-4a64-452a-a588-30941a8527ab",
+    "especie": "perro",
+    "color": "dorado",
+    "edad": 4,
+    "sexo": "macho",
+    "img": [
+      "https://ejemplo.com/imagenes/golden-1.jpg",
+      "https://ejemplo.com/imagenes/golden-2.jpg"
+    ],
+    "duehno": "f47ac10b-58cc-4372-a567-0e02b2c3d479"
+  },
+  {
+    "id": "e3e0fadf-0785-4ab0-99b4-371a6ad590b7",
+    "especie": "perro",
+    "color": "dorado",
+    "edad": 4,
+    "sexo": "macho",
+    "img": [
+      "https://ejemplo.com/imagenes/golden-1.jpg",
+      "https://ejemplo.com/imagenes/golden-2.jpg"
+    ],
+    "duehno": "f47ac10b-58cc-4372-a567-0e02b2c3d479"
+  },
+  {
+    "id": "ad2f83d4-c229-4f27-8e8a-072f6e9eac72",
+    "especie": "perro",
+    "color": "dorado",
+    "edad": 4,
+    "sexo": "macho",
+    "img": [
+      "https://ejemplo.com/imagenes/golden-1.jpg",
+      "https://ejemplo.com/imagenes/golden-2.jpg"
+    ],
+    "duehno": "f47ac10b-58cc-4372-a567-0e02b2c3d479"
+  },
+  {
+    "id": "6a1139c6-21e5-4c65-a559-1635276a99f0",
+    "especie": "perro",
+    "color": "dorado",
+    "edad": 4,
+    "sexo": "macho",
+    "img": [
+      "https://ejemplo.com/imagenes/golden-1.jpg",
+      "https://ejemplo.com/imagenes/golden-2.jpg"
+    ],
+    "duehno": "f47ac10b-58cc-4372-a567-0e02b2c3d479"
+  },
+  {
+    "id": "a17459a3-7b3a-4feb-991a-de0cb8d10202",
+    "especie": "gato",
+    "color": "dorado",
+    "edad": "1",
+    "sexo": "macho",
+    "img": [
+      "/img/pets/1793206940809-Screenshot_2026-10-28_115758.png",
+      "/img/pets/1793206940810-Screenshot_2026-10-28_103209.png"
+    ],
+    "duehno": "f47ac10b-58cc-4372-a567-0e02b2c3d479"
+  }
+]
