@@ -3,8 +3,9 @@ import path from "path";
 import { randomUUID } from "crypto";
 import { fileURLToPath } from "url";
 import { promises as fs } from "fs";
+import { subirMascota } from "../middlewares/multer.middleware.js";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-
+const RAIZ_PUBLIC = path.join(__dirname, "..", "..", "public");
 const routerMascota = Router();
 
 class Mascota {
@@ -45,26 +46,29 @@ routerMascota.get("/:id", async (req, res) => {
   }
 });
 
-routerMascota.post("/", async (req, res) => {
+routerMascota.post("/", subirMascota.array("img", 5),  async (req, res) => {
+  const archivos = req.files || [];
   try {
-    const { especie, color, edad, sexo, img, duehno } = req.body;
+    const { especie, color, edad, sexo, duehno } = req.body;
     if (
       !especie ||
       !color ||
       !edad ||
       !sexo ||
-      !Array.isArray(img) ||
-      img.length === 0 ||
+      archivos.length === 0 ||
       !duehno
     ) {
+      await borrarArchivos(archivos.map((a) => a.path));
       return res.status(400).json({ error: "Datos de la mascota incompletos" });
     }
     const duehnos = await leerJson("users.json");
     if (!duehnos.some((d) => duehno === d.id)) {
+      await borrarArchivos(archivos.map((a) => a.path));
       return res.status(400).json({
         error: "No existe el dueño para esa mascota, primero crear el dueño",
       });
     }
+    const img = archivos.map((a) => `/img/pets/${a.filename}`);
     const mascotaNueva = new Mascota(especie, color, edad, sexo, img, duehno);
     const mascotas = await leerJson("pets.json");
     mascotas.push(mascotaNueva);
@@ -72,6 +76,7 @@ routerMascota.post("/", async (req, res) => {
     await escribirJson("pets.json", mascotas);
     return res.status(201).json(mascotaNueva);
   } catch (e) {
+    await borrarArchivos(archivos.map((a) => a.path));
     return res.status(500).json({ error: "Error al crear la mascota" });
   }
 });
@@ -95,7 +100,11 @@ routerMascota.delete("/:id", async (req, res) => {
       });
     }
     await escribirJson("pets.json", mascotas);
-    return res.status(201).send(mascotaEliminada);
+    const rutasDisco = (mascotaEliminada.img || []).map((url) =>
+      path.join(RAIZ_PUBLIC, url)
+    );
+    await borrarArchivos(rutasDisco);
+    return res.status(200).send(mascotaEliminada);
   } catch (e) {
     return res.status(500).json({ error: "Error al eliminar a la mascota" });
   }
@@ -112,5 +121,8 @@ async function obtenerRuta(archivo) {
 async function escribirJson(archivo, datos) {
   const ruta = await obtenerRuta(archivo);
   await fs.writeFile(ruta, JSON.stringify(datos, null, 2), "utf-8");
+}
+async function borrarArchivos(rutas) {
+  await Promise.all(rutas.map((r) => fs.unlink(r).catch(() => {})));
 }
 export default routerMascota;

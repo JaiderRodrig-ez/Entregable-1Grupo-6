@@ -94,5 +94,17 @@
       "https://ejemplo.com/imagenes/golden-2.jpg"
     ],
     "duehno": "f47ac10b-58cc-4372-a567-0e02b2c3d479"
+  },
+  {
+    "id": "a17459a3-7b3a-4feb-991a-de0cb8d10202",
+    "especie": "gato",
+    "color": "dorado",
+    "edad": "1",
+    "sexo": "macho",
+    "img": [
+      "/img/pets/1793206940809-Screenshot_2026-10-28_115758.png",
+      "/img/pets/1793206940810-Screenshot_2026-10-28_103209.png"
+    ],
+    "duehno": "f47ac10b-58cc-4372-a567-0e02b2c3d479"
   }
 ]
