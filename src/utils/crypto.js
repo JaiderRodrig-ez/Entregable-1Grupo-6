@@ -14,7 +14,7 @@ const iv = crypto.randomBytes(16);
 //console.log(iv);
 //const contrasena = 'pepapig1234';
 
-export const hashPassword = (contrasena) =>{
+export const encrptar = (contrasena) =>{
     const cipher = crypto.createCipheriv(algoritmo, key, iv);
     const passwordEncripted = Buffer.concat([cipher.update(contrasena), cipher.final()]);
     return{
@@ -22,6 +22,23 @@ export const hashPassword = (contrasena) =>{
         encripted: passwordEncripted.toString("hex")
     }
 }
+
+export const hashPassword = (contrasena) => {
+    const salt = crypto.randomBytes(16).toString("hex");
+
+    const hash = crypto.scryptSync(
+        contrasena,
+        salt,
+        64
+    ).toString("hex");
+
+    return {
+        salt,
+        hash
+    };
+};
+
+//console.log(generarHash(contrasena));
 
 //console.log(hashPassword(contrasena));
 export const desencriptar = (contrasena) =>{
